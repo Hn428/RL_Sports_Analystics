@@ -1,0 +1,2 @@
+NBAdata/NBA_Database.sql filter=lfs diff=lfs merge=lfs -text
+NBAdata/PlayerStatistics.csv filter=lfs diff=lfs merge=lfs -text
