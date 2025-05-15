@@ -1,0 +1,20 @@
+More additional feature engineering ideas
+- rolling average points scored (N last games)
+- rolling points allowed
+- point differential average
+- home/away game counts
+- game type (regular / playoff)
+- head to head win rate (team A vs team B over N matchups)
+- spread
+- total points
+
+1. Upgrade preprocessing script
+2. Upgrade predict script for mutiple modes
+    a. win loss
+    b. spread
+    c. total points
+3. Split data into test set and training set
+4. Creare evaluate model script
+    a. run through environment
+    b. generate golded score with wieghts predicts
+        Example: Score = 0.2(w/l) + 0.5(spread) + 0.3(totalpoints) 
