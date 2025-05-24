@@ -4,7 +4,7 @@ from gymnasium import spaces
 
 def normalize_obs(obs):
     return np.nan_to_num(
-        obs / np.array([1.0, 10.0, 1.0, 10.0, 1.0, 1.0, 1.0]),  # empirical scaling
+        obs / np.array([1.0, 1.0, 1.0, 1.0, 10.0, 10.0, 20.0, 20.0, 1.0, 1.0, 150.0, 150.0, 1.0, 1.0, 1.0]),  # adjusted scaling
         nan=0.0, posinf=0.0, neginf=0.0
     ).astype(np.float32)
 
@@ -20,7 +20,7 @@ class NBAPredictEnv(gym.Env):
 
         # Observation: team win rates, streaks, stat differentials
         self.observation_space = spaces.Box(
-            low=-np.inf, high=np.inf, shape=(7,), dtype=np.float32
+            low=-np.inf, high=np.inf, shape=(15,), dtype=np.float32  # Increased dimension
         )
 
     def _get_team_stats(self, game_id, home_id, away_id):
@@ -41,7 +41,7 @@ class NBAPredictEnv(gym.Env):
 
     def _get_obs(self):
         if self.current_step >= len(self.games_df):
-            return np.zeros(7, dtype=np.float32)
+            return np.zeros(15, dtype=np.float32)  # Increased dimension
 
         row = self.games_df.iloc[self.current_step]
         fg_pct_diff, rebound_diff, turnover_diff = self._get_team_stats(
@@ -49,10 +49,18 @@ class NBAPredictEnv(gym.Env):
         )
 
         obs = np.array([
-            row["rolling_home_win_rate"],
-            1.0 - row["rolling_home_win_rate"],  # approximate away win rate
-            row["home_win_streak"],
-            -row["home_win_streak"],  # assume inverse for away
+            row["home_rolling_win_rate_5"],
+            row["home_rolling_win_rate_10"],
+            row["away_rolling_win_rate_5"],
+            row["away_rolling_win_rate_10"],
+            row["home_win_streak_overall"],
+            row["away_win_streak_overall"],
+            row["home_rolling_point_diff_10"],
+            row["away_rolling_point_diff_10"],
+            row["home_team_h2h_win_rate_10"],
+            row["away_team_h2h_win_rate_10"],
+            row["home_rolling_points_scored_10"],
+            row["home_rolling_points_allowed_10"],
             fg_pct_diff,
             rebound_diff,
             turnover_diff

@@ -2,10 +2,10 @@ import pandas as pd
 import numpy as np
 from stable_baselines3 import PPO
 from environments.predict_env import NBAPredictEnv
-from gym.wrappers import RecordEpisodeStatistics
+from gymnasium.wrappers import RecordEpisodeStatistics
 
 # ========== CONFIG ==========
-NUM_EVAL_EPISODES = 10
+NUM_EVAL_EPISODES = 1
 REWARD_SHAPING = True  # Set to False for strict match only
 # ============================
 
@@ -19,7 +19,7 @@ spread_labels = {
 }
 
 print("Loading data...")
-games_df = pd.read_csv("nbaData/PreprocessedGames.csv", low_memory=False)
+games_df = pd.read_csv("nbaData/enhanced_games.csv", low_memory=False)
 team_stats_df = pd.read_csv("nbaData/TeamStatistics.csv", low_memory=False)
 
 print("Creating environment...")
@@ -30,6 +30,7 @@ print("Loading model...")
 model = PPO.load("models/nba_rl_predictor")
 
 correct_predictions = 0
+total_games = 0
 all_preds = []
 all_actuals = []
 
@@ -59,7 +60,7 @@ for ep in range(NUM_EVAL_EPISODES):
             4
         )
 
-        # Reward shaping (optional)
+        # Reward shaping
         if REWARD_SHAPING:
             if pred_class == actual_class:
                 reward = 2.0
@@ -73,12 +74,14 @@ for ep in range(NUM_EVAL_EPISODES):
         # Track accuracy
         if pred_class == actual_class:
             correct_predictions += 1
+        total_games += 1
 
         all_preds.append(pred_class)
         all_actuals.append(actual_class)
 
         print(f"{row['hometeamName']} vs {row['awayteamName']} | 🧠 Predicted: {spread_labels[pred_class]}, Actual: {spread_labels[actual_class]}, Reward: {reward:.1f}")
 
-print("✅ Evaluation Complete")
-print(f"Correct Predictions: {correct_predictions}/{NUM_EVAL_EPISODES}")
-print(f"Accuracy: {correct_predictions / NUM_EVAL_EPISODES:.2%}")
+print("\n✅ Evaluation Complete")
+print(f"Total Games Evaluated: {total_games}")
+print(f"Correct Predictions: {correct_predictions}/{total_games}")
+print(f"Accuracy: {(correct_predictions / total_games):.2%}")
