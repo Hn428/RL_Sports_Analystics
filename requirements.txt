@@ -1,6 +1,6 @@
-gym==0.26.2
+gymnasium==0.28.1
 pandas==1.5.3
-stable-baselines3==1.7.0
+stable-baselines3==2.1.0
 numpy==1.23.5
 matplotlib==3.6.3
 scikit-learn==1.2.2

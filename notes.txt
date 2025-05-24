@@ -1,20 +1,26 @@
-More additional feature engineering ideas
-- rolling average points scored (N last games)
-- rolling points allowed
-- point differential average
-- home/away game counts
-- game type (regular / playoff)
-- head to head win rate (team A vs team B over N matchups)
-- spread
-- total points
+Features used in the environment:
+- home_rolling_win_rate_5 (5-game rolling window)
+- home_rolling_win_rate_10 (10-game rolling window)
+- away_rolling_win_rate_5 (5-game rolling window)
+- away_rolling_win_rate_10 (10-game rolling window)
+- home_win_streak_overall
+- away_win_streak_overall
+- home_rolling_point_diff_10 (10-game rolling window)
+- away_rolling_point_diff_10 (10-game rolling window)
+- home_team_h2h_win_rate_10 (head-to-head win rate over last 10 matchups)
+- away_team_h2h_win_rate_10 (head-to-head win rate over last 10 matchups)
+- home_rolling_points_scored_10 (10-game rolling window)
+- home_rolling_points_allowed_10 (10-game rolling window)
+- field goal percentage differential
+- rebound differential
+- turnover differential
 
-1. Upgrade preprocessing script
-2. Upgrade predict script for mutiple modes
+
+Upgrade predict script for mutiple modes
     a. win loss
     b. spread
     c. total points
-3. Split data into test set and training set
 4. Creare evaluate model script
     a. run through environment
     b. generate golded score with wieghts predicts
-        Example: Score = 0.2(w/l) + 0.5(spread) + 0.3(totalpoints) 
+        Example: Score = 0.2(w/l) + 0.5(spread) + 0.3(totalpoints)
