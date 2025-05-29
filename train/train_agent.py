@@ -1,3 +1,8 @@
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+
 import pandas as pd
 from stable_baselines3 import PPO
 from stable_baselines3.common.env_checker import check_env
@@ -35,6 +40,6 @@ model = PPO(
 )
 model.learn(total_timesteps=300_000)
 
-print("✅ Model trained with tuned hyperparameters. Saving...")
+print("Model trained with tuned hyperparameters. Saving...")
 model.save("models/nba_rl_predictor")
-print("✅ Model saved")
+print("Model saved")
