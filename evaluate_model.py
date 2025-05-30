@@ -35,9 +35,11 @@ for ep in range(NUM_EVAL_EPISODES):
         actual_total = row["homeScore"] + row["awayScore"]
         actual_win = 1 if actual_spread > 0 else 0
 
-        pred_spread = float(action[0])
-        pred_total = float(action[1])
-        pred_win = 1 if action[2] > 0.5 else 0
+        # === Unscale Actions ===
+        pred_spread = -25 + ((action[0] + 1) / 2.0) * 50       # [-1,1] -> [-25,25]
+        pred_total = 175 + ((action[1] + 1) / 2.0) * 100        # [-1,1] -> [175,275]
+        pred_win = 1 if action[2] > 0 else 0                    # classification
+
 
         spread_error = abs(pred_spread - actual_spread)
         total_points_error = abs(pred_total - actual_total)

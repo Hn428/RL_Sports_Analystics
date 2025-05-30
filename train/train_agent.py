@@ -17,8 +17,6 @@ team_stats_df = pd.read_csv("nbaData/TeamStatistics.csv", low_memory=False)
 print("Creating environment...")
 raw_env = NBAPredictEnv(games_df, team_stats_df)
 check_env(raw_env, warn=True)
-
-# Wrap with RescaleAction to normalize action space to [-1, 1]
 env = raw_env
 
 # === PPO Training ===
@@ -43,7 +41,7 @@ model = PPO(
     verbose=1
 )
 
-model.learn(total_timesteps=600_000)
+model.learn(total_timesteps=300_000)
 
 print("Model trained with tuned hyperparameters. Saving...")
 model.save("models/nba_rl_predictor")
