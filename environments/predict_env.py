@@ -15,7 +15,12 @@ class NBAPredictEnv(gym.Env):
         self.team_stats_df = team_stats_df
         self.current_step = 0
 
-        self.action_space = spaces.Box(low=-25.0, high=25.0, shape=(1,), dtype=np.float32)
+        self.action_space = spaces.Box(
+            low=np.array([-25.0, 200.0, 0.0]),
+            high=np.array([25.0, 250.0, 1.0]),
+            dtype=np.float32
+        )
+
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(15,), dtype=np.float32)
 
     def _get_team_stats(self, game_id, home_id, away_id):
@@ -64,10 +69,28 @@ class NBAPredictEnv(gym.Env):
             return self._get_obs(), 0.0, True, False, {}
 
         row = self.games_df.iloc[self.current_step]
+
         actual_spread = row["homeScore"] - row["awayScore"]
+        actual_total = row["homeScore"] + row["awayScore"]
+        actual_win = 1 if actual_spread > 0 else 0
+
         pred_spread = float(np.clip(action[0], -25, 25))
-        reward = -abs(pred_spread - actual_spread)
+        pred_total = float(np.clip(action[1], 200, 250))
+        pred_win = 1 if action[2] > 0.5 else 0
+
+        # Individual reward components
+        spread_reward = -abs(pred_spread - actual_spread)
+        total_reward = -abs(pred_total - actual_total)
+        win_reward = 1.0 if pred_win == actual_win else -1.0
+
+        # Weighted reward sum
+        reward = (
+            0.5 * spread_reward +    # weight on spread
+            0.3 * total_reward +     # weight on total points
+            0.2 * win_reward         # weight on win/loss classification
+        )
 
         self.current_step += 1
         done = self.current_step >= len(self.games_df)
         return self._get_obs(), reward, done, False, {}
+

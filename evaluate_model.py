@@ -14,10 +14,11 @@ model = PPO.load("models/nba_rl_predictor")
 
 print("Starting evaluation...\n")
 NUM_EVAL_EPISODES = 1
-total_abs_error = 0
-total_games = 0
+spread_error_total = 0
+total_points_error_total = 0
+win_correct_total = 0
+game_total = 0
 
-# Evaluate model
 for ep in range(NUM_EVAL_EPISODES):
     print(f"Episode {ep + 1}/{NUM_EVAL_EPISODES}")
     obs, _ = env.reset()
@@ -29,32 +30,32 @@ for ep in range(NUM_EVAL_EPISODES):
         done = terminated or truncated
 
         row = env.env.games_df.iloc[env.env.current_step - 1]
+
         actual_spread = row["homeScore"] - row["awayScore"]
-        predicted_spread = float(action[0])
-        abs_error = abs(predicted_spread - actual_spread)
+        actual_total = row["homeScore"] + row["awayScore"]
+        actual_win = 1 if actual_spread > 0 else 0
 
-        print(f"{row['hometeamName']} vs {row['awayteamName']} | Predicted: {predicted_spread:.2f}, "
-              f"Actual: {actual_spread}, Absolute Error: {abs_error:.2f}")
+        pred_spread = float(action[0])
+        pred_total = float(action[1])
+        pred_win = 1 if action[2] > 0.5 else 0
 
-        total_abs_error += abs_error
-        total_games += 1
+        spread_error = abs(pred_spread - actual_spread)
+        total_points_error = abs(pred_total - actual_total)
+        win_correct = int(pred_win == actual_win)
 
-# Report model performance
-model_aae = total_abs_error / total_games
+        print(f"{row['hometeamName']} vs {row['awayteamName']} | "
+              f"Spread: Pred {pred_spread:.2f} vs Act {actual_spread}, "
+              f"Total: Pred {pred_total:.2f} vs Act {actual_total}, "
+              f"Win: Pred {'W' if pred_win else 'L'} vs Act {'W' if actual_win else 'L'}")
+
+        spread_error_total += spread_error
+        total_points_error_total += total_points_error
+        win_correct_total += win_correct
+        game_total += 1
+
 print("\nEvaluation Complete")
-print(f"Total Games Evaluated: {total_games}")
-print(f"Model Average Absolute Error (AAE): {model_aae:.2f}")
+print(f"Games Evaluated: {game_total}")
+print(f"Spread AAE: {spread_error_total / game_total:.2f}")
+print(f"Total Points AAE: {total_points_error_total / game_total:.2f}")
+print(f"Win Prediction Accuracy: {win_correct_total / game_total:.2%}")
 
-# Mean Spread Baseline Comparison
-print("\nEvaluating Mean Spread Baseline...")
-
-spread_series = games_df["homeScore"] - games_df["awayScore"]
-mean_spread_value = spread_series.mean()
-mean_baseline_aae = (spread_series - mean_spread_value).abs().mean()
-
-print(f"Mean Spread Value: {mean_spread_value:.2f}")
-print(f"Baseline Average Absolute Error: {mean_baseline_aae:.2f}")
-print(f"Model Average Absolute Error:    {model_aae:.2f}")
-
-improvement = mean_baseline_aae - model_aae
-print(f"Improvement Over Baseline: {improvement:.2f} points")
