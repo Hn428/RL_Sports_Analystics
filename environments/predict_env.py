@@ -15,10 +15,10 @@ class NBAPredictEnv(gym.Env):
         self.team_stats_df = team_stats_df
         self.current_step = 0
 
-        # Action space now in normalized range [-1, 1]
+        # Action space: Spread and Total Points predictions only
         self.action_space = spaces.Box(
-            low=np.array([-1.0, -1.0, -1.0]),
-            high=np.array([1.0, 1.0, 1.0]),
+            low=np.array([-1.0, -1.0]),
+            high=np.array([1.0, 1.0]),
             dtype=np.float32
         )
 
@@ -70,35 +70,21 @@ class NBAPredictEnv(gym.Env):
             return self._get_obs(), 0.0, True, False, {}
 
         row = self.games_df.iloc[self.current_step]
-
         actual_spread = row["homeScore"] - row["awayScore"]
         actual_total = row["homeScore"] + row["awayScore"]
-        actual_win = 1 if actual_spread > 0 else 0
 
-        # === Scale Actions ===
-        # Spread: [-1, 1] → [-25, 25]
+        # Action scaling
         pred_spread = -25 + ((action[0] + 1) / 2.0) * 50
-
-        # Total Points: [-1, 1] → [175, 275]
         pred_total = 175 + ((action[1] + 1) / 2.0) * 100
 
-        # Win: [-1, 1] → binary 0 or 1
-        pred_win = 1 if action[2] > 0 else 0
-
-        # Individual reward components
         spread_reward = -abs(pred_spread - actual_spread)
         total_reward = -abs(pred_total - actual_total)
-        win_reward = 0.1 if pred_win == actual_win else -0.1
 
-        # Weighted reward sum
         reward = (
             0.3 * spread_reward +
-            0.5 * total_reward +
-            0.2 * win_reward
+            0.7 * total_reward
         )
-
 
         self.current_step += 1
         done = self.current_step >= len(self.games_df)
         return self._get_obs(), reward, done, False, {}
-
