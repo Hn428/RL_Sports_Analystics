@@ -4,7 +4,6 @@ This project trains a reinforcement learning model using PPO to predict NBA game
 
 - Predicted point spread
 - Predicted total points
-- Predicted win/loss outcome
 
 The environment is built with Gymnasium and uses historical NBA stats. The model is trained with Stable-Baselines3.
 
@@ -18,7 +17,7 @@ Run:
 
     pip install -r requirements.txt
 
-Make sure your `nbaData/` folder contains:
+Make sure your 'nbaData/' folder contains:
 
 - enhanced_games.csv
 - TeamStatistics.csv
@@ -31,7 +30,15 @@ Run:
 
     python train/train_agent.py
 
-This will train the PPO model and save it to `models/nba_rl_predictor.zip`.
+This will train the PPO model and save it to 'models/nba_rl_predictor.zip'.
+
+    python train/train_checkpoints.py
+
+This will train the PPO model and save it in increaments of 100k timesteps.
+
+    python train/train_checkpoints.py
+
+This fine tuned the PPO model to optimal fit in our enviorment.
 
 ---
 
@@ -39,6 +46,11 @@ This will train the PPO model and save it to `models/nba_rl_predictor.zip`.
 
 Run:
 
-    python evaluate_model.py
+    python evaluate/evaluate_model.py
 
-This will load the trained model and print predictions for spread, total points, and win/loss along with accuracy stats.
+This will load the trained model and print predictions for spread and total points accuracy stats.
+
+    python evaluate/evaluate_checkpoints.py
+
+This will load the trained model and print predictions for spread and total points accuracy stats with loggin of increaments of 100k timestamps.
+

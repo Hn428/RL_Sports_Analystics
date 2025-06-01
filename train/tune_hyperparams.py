@@ -49,7 +49,7 @@ def optimize_ppo(trial):
 # Run Optuna
 if __name__ == "__main__":
     study = optuna.create_study(direction="maximize")
-    study.optimize(optimize_ppo, n_trials=20)
+    study.optimize(optimize_ppo, n_trials=10)
 
     print("✅ Best hyperparameters found:")
     print(study.best_params)
